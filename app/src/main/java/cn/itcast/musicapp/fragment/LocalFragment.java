@@ -57,11 +57,7 @@ public class LocalFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.localmusic, null);
-//        listView_my_music = (ListView)view.findViewById(R.id.listView);
-
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleListView);
-//        toolbar = (Toolbar)view.findViewById(R.id.toolbar);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(mainActivity));
         recyclerView.addItemDecoration(new DividerItemDecoration(mainActivity, LinearLayout.VERTICAL));
         loadData();
@@ -69,17 +65,17 @@ public class LocalFragment extends Fragment {
     }
 
     private void loadData() {
-        mp3Infos = MediaUtils.getMp3Infos(mainActivity);
+        mp3Infos = (ArrayList<Mp3Info>)MediaUtils.getMp3Infos(mainActivity);
         localMusicAdapter = new LocalMusicAdapter(mainActivity, mp3Infos);
 
         localMusicAdapter.setOnItemClickListener(new LocalMusicAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(int position) {
+            public void onItemClick(final int position) {
                 Log.i("点击测试时间，看是否能获取当前点击音乐的编号：" ,"+"+position+"+");
 
 
 //播放音乐
-//                mainActivity.play(position);
+                mainActivity.play(position);
             }
 
             @Override
@@ -87,28 +83,10 @@ public class LocalFragment extends Fragment {
 
             }
         });
-//        recyclerView.addOnScrollListener(new HidingScrollListener() {
-//            @Override
-//            public void onHide() {
-//                Resources resources = LocalFragment.this.getResources();
-//                DisplayMetrics dm = resources.getDisplayMetrics();
-//                float desity = dm.density;
-//                int width = dm.widthPixels;
-//                int height = dm.heightPixels;
-////                toolbar.animate().translationY(height - toolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2)).setDuration(800).start();//toobar隐藏动画
-//                toolbar.animate().translationY(-height).setDuration(800).setInterpolator(new AccelerateInterpolator(2)).start();
-//            }
-//
-//            @Override
-//            public void onShow() {
-//                toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).setDuration(800).start();
-//            }
-//        });
-
 
         recyclerView.setAdapter(localMusicAdapter);
-//        myMusicListAdapter = new MyMusicListAdapter(mainActivity,mp3Infos);
-//        listView_my_music.setAdapter(myMusicListAdapter);
+
     }
+
 
 }
