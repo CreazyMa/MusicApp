@@ -26,6 +26,14 @@ public class MyMusicListAdapter extends BaseAdapter {
         this.mp3Infos = mp3Infos;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public ArrayList<Mp3Info> getMp3Infos() {
         return mp3Infos;
     }
@@ -55,9 +63,18 @@ public class MyMusicListAdapter extends BaseAdapter {
         if (convertView==null){
             convertView = LayoutInflater.from(context).inflate(R.layout.item_music_layout,null);
             viewHolder = new ViewHolder();
-            viewHolder.textView1_title = (TextView)convertView.findViewById(R.id.textView1_title);
-            viewHolder.textView2_singer = (TextView)convertView.findViewById(R.id.textView2_singer);
-            viewHolder.textView3_time = (TextView)convertView.findViewById(R.id.textView3_time);
+            Mp3Info mp3Info = mp3Infos.get(position);
+//            viewHolder.textView1_title = (TextView)convertView.findViewById(R.id.textView1_title);
+//            viewHolder.textView2_singer = (TextView)convertView.findViewById(R.id.textView2_singer);
+//            viewHolder.textView3_time = (TextView)convertView.findViewById(R.id.textView3_time);
+
+            /**
+             * 错误修改部分可能是
+             * */
+            viewHolder.textView1_title.setText(mp3Info.getTitle());
+            viewHolder.textView2_singer.setText(mp3Info.getArtist());
+            viewHolder.textView3_time.setText(MediaUtils.formatTime(mp3Info.getDuration()));
+
             convertView.setTag(viewHolder);
         }
         viewHolder = (ViewHolder) convertView.getTag();
