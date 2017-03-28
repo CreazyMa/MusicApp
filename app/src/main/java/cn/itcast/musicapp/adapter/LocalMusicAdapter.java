@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -98,7 +99,11 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Vi
 
     @Override
     public int getItemCount() {
+//        if (mp3Infos == null){
+//            return mp3Infos.size();
+//        }
         return mp3Infos.size();
+
     }
 
 
