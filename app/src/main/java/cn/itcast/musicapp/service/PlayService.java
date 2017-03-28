@@ -94,24 +94,27 @@ public class PlayService extends Service {
 
     public Mp3Info play(Context context, int position) {
         mContext = context;
-        if (position >= 0 && position < mp3Infos.size()) {
-            Mp3Info mp3Info = mp3Infos.get(position);
-            try {
-                mPlayer.reset();//复位
-                mPlayer.setDataSource(this, Uri.parse(mp3Info.getUrl()));
-                mPlayer.prepare();//准备
-                mPlayer.start();//开始播放
-                currentPosition = position;//保存当前位置到currentPosition
-                mContext.sendBroadcast(new Intent(MainActivity.Constant.RECRIVER_MUSIC_CHANGE));
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            if (position >= 0 && position < mp3Infos.size()) {
+                Mp3Info mp3Info = mp3Infos.get(position);
+                try {
+                    mPlayer.reset();//复位
+                    mPlayer.setDataSource(this, Uri.parse(mp3Info.getUrl()));
+                    mPlayer.prepare();//准备
+                    mPlayer.start();//开始播放
+                    currentPosition = position;//保存当前位置到currentPosition
+                    mContext.sendBroadcast(new Intent(MainActivity.Constant.RECRIVER_MUSIC_CHANGE));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return mp3Info;
             }
-            return mp3Info;
-        }
-        return null;
+            return null;
     }
 
-
+public void setMp3Infos(ArrayList<Mp3Info> mp3Infos){
+    this.mp3Infos = mp3Infos;
+}
 
 //    public void play(Context context, int position) {
 //        mContext = context;
@@ -140,7 +143,11 @@ public class PlayService extends Service {
 
     //下一首
     public void next() {
-        if (currentPosition >= mp3Infos.size() - 1) {//如果当前位置超过总歌数，则返回第一首
+
+      if (mPlayer != null && !mPlayer.isPlaying()) {//判断是否有没有歌曲播放，如何没有歌曲，点击下一首的时候会从第一首歌开始播放
+
+       play(getApplicationContext(),0);
+      }else if (currentPosition >= mp3Infos.size() - 1) {//如果当前位置超过总歌数，则返回第一首
             currentPosition = 0;//返回第一首歌
         } else {
             currentPosition++;
