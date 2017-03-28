@@ -1,5 +1,6 @@
 package cn.itcast.musicapp;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,17 +27,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.itcast.musicapp.activity.BaseActivity;
 import cn.itcast.musicapp.adapter.MyFragmentAdapter;
 import cn.itcast.musicapp.bean.Mp3Info;
+import cn.itcast.musicapp.bean.SongRankBean;
 import cn.itcast.musicapp.fragment.LocalFragment;
+import cn.itcast.musicapp.inter_face.NetService;
 import cn.itcast.musicapp.service.PlayService;
 import cn.itcast.musicapp.util.MediaUtils;
 import layout.MyFragment;
 import layout.MyFragment.OnFragmentInteractionListener;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnFragmentInteractionListener {
@@ -52,6 +63,8 @@ public class MainActivity extends AppCompatActivity
     private boolean isBound = false;//是否已经绑定
     private boolean isPlaying = false;
     private BroadcastReceiver mReceiver;
+
+//    private static final String TAG="mainactivity";
 
 
 
@@ -87,7 +100,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -178,7 +191,47 @@ public class MainActivity extends AppCompatActivity
         IntentFilter intentFilter = new IntentFilter(Constant.RECRIVER_MUSIC_CHANGE);
         registerReceiver(mReceiver, intentFilter);
 
+//        sendRequest();
     }
+//
+//    private void sendRequest(){
+//        /**
+//         * 待添加。。。。。。
+//         *
+//         * */
+//        //1.创建一个Retrofit 实例，并且完成相关的配置
+//        //GsonConverterFactory 是默认提供的Gson 转换器
+//        Retrofit build = new Retrofit.Builder()
+//                .baseUrl(NetService.BASE_URL)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        //获取接口实例
+//         NetService biz = build.create(NetService.class);
+//
+//        //调用方法得到一个Call
+//        Call<SongRankBean> call = biz.getSongRank("json","","webapp_music","baidu.ting.billboard.billList",
+//                1,10,0);
+//        //进行网络请求，异步调用
+//        call.enqueue(new Callback<SongRankBean>() {
+//            @Override
+//            public void onResponse(Call<SongRankBean> call, Response<SongRankBean> response) {
+//                for (SongRankBean.SongListBean songListBean : response.body().getSong_list()){
+//                    Log.d(TAG, "歌曲名: "+songListBean.getTitle()+"---歌手名:"+
+//                            songListBean.getAuthor());
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<SongRankBean> call, Throwable t) {
+//
+//            }
+//        });
+//
+//
+//
+//    }
     @Override
     protected void onDestroy() {
         unregisterReceiver(mReceiver);
@@ -297,9 +350,30 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public boolean play(int position){
+    public boolean play(int position){//ArrayList<Mp3Info> mp3Infos,
+//        requestPermission(102, Manifest.permission.READ_PHONE_STATE, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this,"已授权，可以监听电话状态 ",Toast.LENGTH_SHORT).show();
+//                    }
+//                }, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this,"无法监听电话状态，来电话时音乐将不会暂停，可能会影响通话！",Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//
+//
+//        );
+//        playService.setMp3Infos(mp3Infos);
         playService.play(this,position);
         isPlaying = true;
         return true;
-    }
+         }
+        //原始播放方法
+//    public boolean play(int position){
+//        playService.play(this,position);
+//        isPlaying = true;
+//        return true;
+//    }
 }
