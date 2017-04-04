@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -32,11 +33,15 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.itcast.musicapp.activity.BaseActivity;
+
+import cn.itcast.musicapp.activity.NetMusicActivity;
 import cn.itcast.musicapp.adapter.MyFragmentAdapter;
 import cn.itcast.musicapp.bean.Mp3Info;
+
 import cn.itcast.musicapp.bean.SongRankBean;
 import cn.itcast.musicapp.fragment.LocalFragment;
+
+import cn.itcast.musicapp.fragment.NetMusicFragment;
 import cn.itcast.musicapp.inter_face.NetService;
 import cn.itcast.musicapp.service.PlayService;
 import cn.itcast.musicapp.util.MediaUtils;
@@ -47,6 +52,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnFragmentInteractionListener {
@@ -63,8 +69,9 @@ public class MainActivity extends AppCompatActivity
     private boolean isBound = false;//是否已经绑定
     private boolean isPlaying = false;
     private BroadcastReceiver mReceiver;
+    private boolean ifPlaying = false;
 
-//    private static final String TAG="mainactivity";
+    private static final String TAG="mainactivity";
 
 
 
@@ -104,6 +111,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //网络歌曲的获取
+//                sendRequest();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -136,8 +146,9 @@ public class MainActivity extends AppCompatActivity
         list_title.add("动态");
 
         LocalFragment localFragment = LocalFragment.newInstance();
+        NetMusicFragment netMusicFragment = NetMusicFragment.newInstance();
         //fragOne = MyFragment.newInstance("本地音乐", "one");
-        fragTwo = MyFragment.newInstance("网络音乐", "暂时没有");
+//        fragTwo = MyFragment.newInstance("网络音乐", "暂时没有");
         fragThree = MyFragment.newInstance("动态", "高级拓展");
 
 
@@ -145,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         list_fragment = new ArrayList<>();
         //list_fragment.add(fragOne);
         list_fragment.add(localFragment);
-        list_fragment.add(fragTwo);
+        list_fragment.add(netMusicFragment);
         list_fragment.add(fragThree);
 
         viewPager = (ViewPager)findViewById(R.id.viewPaper);
@@ -182,8 +193,14 @@ public class MainActivity extends AppCompatActivity
         ivNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playService.next();
-            }
+
+                if (!ifPlaying){
+                    playService.play(getApplicationContext(),0);
+                    ifPlaying = true;
+                }else {
+                    playService.next();
+                }
+                }
         });
 
 
@@ -191,9 +208,10 @@ public class MainActivity extends AppCompatActivity
         IntentFilter intentFilter = new IntentFilter(Constant.RECRIVER_MUSIC_CHANGE);
         registerReceiver(mReceiver, intentFilter);
 
-//        sendRequest();
+
     }
-//
+
+    //网络歌曲信息转换代码
 //    private void sendRequest(){
 //        /**
 //         * 待添加。。。。。。
@@ -216,6 +234,8 @@ public class MainActivity extends AppCompatActivity
 //        call.enqueue(new Callback<SongRankBean>() {
 //            @Override
 //            public void onResponse(Call<SongRankBean> call, Response<SongRankBean> response) {
+//
+//                //显示
 //                for (SongRankBean.SongListBean songListBean : response.body().getSong_list()){
 //                    Log.d(TAG, "歌曲名: "+songListBean.getTitle()+"---歌手名:"+
 //                            songListBean.getAuthor());
@@ -232,6 +252,9 @@ public class MainActivity extends AppCompatActivity
 //
 //
 //    }
+
+
+
     @Override
     protected void onDestroy() {
         unregisterReceiver(mReceiver);

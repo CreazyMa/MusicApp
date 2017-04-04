@@ -144,10 +144,11 @@ public void setMp3Infos(ArrayList<Mp3Info> mp3Infos){
     //下一首
     public void next() {
 
-      if (mPlayer != null && !mPlayer.isPlaying()) {//判断是否有没有歌曲播放，如何没有歌曲，点击下一首的时候会从第一首歌开始播放
-
-       play(getApplicationContext(),0);
-      }else if (currentPosition >= mp3Infos.size() - 1) {//如果当前位置超过总歌数，则返回第一首
+//      if (mPlayer != null && !mPlayer.isPlaying()) {//判断是否有没有歌曲播放，如何没有歌曲，点击下一首的时候会从第一首歌开始播放
+//
+//       play(getApplicationContext(),0);//有问题如果点击暂停再点击下一首会报错（重新从第一首开始）
+//      }else
+         if (currentPosition >= mp3Infos.size() - 1) {//如果当前位置超过总歌数，则返回第一首
             currentPosition = 0;//返回第一首歌
         } else {
             currentPosition++;

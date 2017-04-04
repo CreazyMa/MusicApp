@@ -17,6 +17,24 @@ public class Mp3Info {
     private String url; // 歌曲路径 5
     private String lrcTitle; // 歌词名称
     private String lrcSize; // 歌词大小
+    private String picUrl;//网络歌曲图片
+    private int isMusic;
+
+    public int getIsMusic() {
+        return isMusic;
+    }
+
+    public void setIsMusic(int isMusic) {
+        this.isMusic = isMusic;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
 
     public Mp3Info(String album, String url, String title, long size, long albumId, String artist, String displayName, long duration, long id, String lrcSize, String lrcTitle) {
         this.album = album;

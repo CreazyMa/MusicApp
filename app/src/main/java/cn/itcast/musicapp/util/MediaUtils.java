@@ -252,4 +252,16 @@ public class MediaUtils {
         return candidate;
     }
 
+    //网络音乐时间获取
+    public static String netFormatTime(long time){
+        String min = time / 60 + "";
+        String sec = time % 60 + "";
+        if (min.length()<2){
+            min = "0"+min;
+        }
+        if (sec.length()<2){
+            sec="0"+sec;
+        }
+        return min+":"+sec;
+    }
 }
