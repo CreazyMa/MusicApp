@@ -84,11 +84,15 @@ public class NetMusicActivity extends AppCompatActivity {
         //绑定服务，为了获取playservice
         bindPlayService();
         mReceiver = new MusicChangeRecriver();
-        IntentFilter intentFilter = new IntentFilter(MainActivity.Constant.RECRIVER_MUSIC_CHANGE);
+        IntentFilter intentFilter = new IntentFilter(Constant.RECRIVER_MUSIC_CHANGE);
         registerReceiver(mReceiver, intentFilter);
 
     }
-
+    public class Constant {
+        public static final String DEFAULT_MUSIC_TITLE = "MusicApp";
+        public static final String DEFAULT_ARTIST = "郑州轻工业学院";
+        public static final String RECRIVER_MUSIC_CHANGE = "cn.itcast.musicapp";
+    }
     private class MusicChangeRecriver extends BroadcastReceiver {
 
         @Override
