@@ -1,8 +1,5 @@
 package cn.itcast.musicapp.util;
 
-import android.net.Uri;
-import android.os.Parcel;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,9 +12,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.itcast.musicapp.bean.BillboardBean;
 import cn.itcast.musicapp.bean.Mp3Info;
-import cn.itcast.musicapp.bean.SongRankBean;
-import retrofit2.http.Url;
 
 /**
  * Created by CreazyMa on 2017/3/29.
@@ -48,7 +44,7 @@ public class BaiduMusicUtils {
 
         //如果是加载第一页，则加载榜单信息
         if (offset == 0) {
-            SongRankBean.BillboardBean billboardBean = parseJsonBillboard(ret);
+           billboardBean = parseJsonBillboard(ret);
         }
         return mp3Infos;
     }
@@ -143,7 +139,7 @@ public class BaiduMusicUtils {
 //请注意：此方法为新增。在本地音乐文件播放时，歌曲的图片是从MediaStore中加载的，
 //而播放网络音乐，无法使用上述方法，因此需要保存pic_small的值。
 //需要在Mp3Info类中添加成员变量：picUri，并添加get和set方法
-                info.setPicUrl(object.getString("pic_small"));
+//                info.setPicUrl(object.getString("pic_small"));
                 info.setUrl(getMusicUrl(info.getId()));
                 System.out.println(info.toString());
                 list.add(info);
@@ -193,8 +189,8 @@ public class BaiduMusicUtils {
      * "pic_s210":"http:\/\/business.cdn.qianqian.com\/qianqian\/pic\/bos_client_c49310115801d43d42a98fdc357f6057.jpg",
      * "web_url":"http:\/\/music.baidu.com\/top\/new"}
      */
-    private static SongRankBean.BillboardBean parseJsonBillboard(String ret) {
-        SongRankBean.BillboardBean bb = new SongRankBean.BillboardBean();
+    private static BillboardBean parseJsonBillboard(String ret) {
+        BillboardBean bb = new BillboardBean();
         try {
             JSONObject obj = new JSONObject(ret);
             JSONObject billboard = obj.getJSONObject("billboard");
@@ -216,13 +212,13 @@ public class BaiduMusicUtils {
         }
         return bb;
     }
-    private  static SongRankBean.BillboardBean billboardBean;
+    private  static BillboardBean billboardBean;
 
-    public static SongRankBean.BillboardBean getBillboardBean() {
+    public static BillboardBean getBillboardBean() {
         return billboardBean;
     }
 
-    public static void setBillboardBean(SongRankBean.BillboardBean billboardBean) {
+    public static void setBillboardBean(BillboardBean billboardBean) {
         BaiduMusicUtils.billboardBean = billboardBean;
     }
 }

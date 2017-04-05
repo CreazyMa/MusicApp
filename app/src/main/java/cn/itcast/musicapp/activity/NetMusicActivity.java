@@ -28,8 +28,8 @@ import java.util.List;
 import cn.itcast.musicapp.MainActivity;
 import cn.itcast.musicapp.R;
 import cn.itcast.musicapp.adapter.NetMusicAdapter;
+import cn.itcast.musicapp.bean.BillboardBean;
 import cn.itcast.musicapp.bean.Mp3Info;
-import cn.itcast.musicapp.bean.SongRankBean;
 import cn.itcast.musicapp.service.PlayService;
 import cn.itcast.musicapp.util.BaiduMusicUtils;
 import cn.itcast.musicapp.util.MediaUtils;
@@ -43,7 +43,7 @@ public class NetMusicActivity extends AppCompatActivity {
     private ImageView tbImage = null;//Toolbar显示图片
     private RecyclerView recyclerView = null;
     private List<Mp3Info> mp3Infos = null;
-    private SongRankBean.BillboardBean billboardBean = null;//存储当前榜单信息
+    private BillboardBean billboardBean = null;//存储当前榜单信息
     private NetMusicAdapter adapter = null;
     private String strTitle;//存储Toobar显示文本
     private int type = 0;
@@ -177,17 +177,19 @@ public class NetMusicActivity extends AppCompatActivity {
             }
             return true;
         }
-    }
 
-    protected void onPostExecute(Boolean aBoolean) {
-        if (aBoolean) {
-            if (offset == 0) {
-                Glide.with(getApplication()).load(billboardBean.getPic_s444()).into(tbImage);
-                billboarMusicCount = Integer.parseInt(billboardBean.getBillboard_songnum());
-                adapter.setMp3Infos((ArrayList<Mp3Info>) musics);
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean) {
+                if (offset == 0) {
+                    Glide.with(getApplication()).load(billboardBean.getPic_s444()).into(tbImage);
+                    billboarMusicCount = Integer.parseInt(billboardBean.getBillboard_songnum());
+                    adapter.setMp3Infos((ArrayList<Mp3Info>) musics);
+                }
+                adapter.notifyDataSetChanged();
+                loading = false;
             }
-            adapter.notifyDataSetChanged();
-            loading = false;
         }
     }
 
