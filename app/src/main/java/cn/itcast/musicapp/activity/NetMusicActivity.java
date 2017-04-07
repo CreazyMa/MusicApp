@@ -83,6 +83,7 @@ public class NetMusicActivity extends AppCompatActivity {
 
         //绑定服务，为了获取playservice
         bindPlayService();
+
         mReceiver = new MusicChangeRecriver();
         IntentFilter intentFilter = new IntentFilter(Constant.RECRIVER_MUSIC_CHANGE);
         registerReceiver(mReceiver, intentFilter);
@@ -170,8 +171,13 @@ public class NetMusicActivity extends AppCompatActivity {
             loading = true;
 
             musics = BaiduMusicUtils.getNetMusic(params[0], params[1], params[2]);
+            System.out.println("++++++++++++++网络音乐获取+++++++++++++++++");
+            System.out.println(musics);
+            System.out.println("++++++++++++++++++++++++++++++++");
+
             if (params[2] == 0) {
                 mp3Infos = musics;
+
                 billboardBean = BaiduMusicUtils.getBillboardBean();
             } else {
                 mp3Infos.addAll(musics);
