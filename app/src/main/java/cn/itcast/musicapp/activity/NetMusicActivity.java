@@ -179,6 +179,8 @@ public class NetMusicActivity extends AppCompatActivity {
                 mp3Infos = musics;
 
                 billboardBean = BaiduMusicUtils.getBillboardBean();
+
+
             } else {
                 mp3Infos.addAll(musics);
             }
@@ -218,8 +220,10 @@ public class NetMusicActivity extends AppCompatActivity {
 
     private void initView() {
         tbImage = (ImageView) findViewById(R.id.app_bar_image);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);//获取到音乐歌曲，显示控件
+
         linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.VERTICAL));
         adapter = new NetMusicAdapter(this, null);
 
@@ -253,10 +257,10 @@ public class NetMusicActivity extends AppCompatActivity {
             }
         });
         tvSongName = (TextView)findViewById(R.id.textView_songName);
-        tvSonger = (TextView)findViewById(R.id.textView2_singer);
-        ivNext = (ImageView)findViewById(R.id.imageView3_next);
-        ivPlay = (ImageView)findViewById(R.id.imageView2_play_pasue);
-        ivSongPic = (ImageView)findViewById(R.id.imageView);
+        tvSonger = (TextView)findViewById(R.id.textVie_singer);
+        ivNext = (ImageView)findViewById(R.id.imageVie_next);
+        ivPlay = (ImageView)findViewById(R.id.imageView2_play_pause);
+        ivSongPic = (ImageView)findViewById(R.id.imaView);
 //        ivPlay.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {

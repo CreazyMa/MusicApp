@@ -21,6 +21,7 @@ import cn.itcast.musicapp.bean.Mp3Info;
 
 public class BaiduMusicUtils {
 
+    private  static BillboardBean billboardBean;
     /**
      * 通过对url的分析发现，前两行内容基本固定，只要最后三个参数是变化的
      * http://tingapi.ting.baidu.com/v1/restserver/ting?
@@ -212,7 +213,7 @@ public class BaiduMusicUtils {
         }
         return bb;
     }
-    private  static BillboardBean billboardBean;
+
 
     public static BillboardBean getBillboardBean() {
         return billboardBean;

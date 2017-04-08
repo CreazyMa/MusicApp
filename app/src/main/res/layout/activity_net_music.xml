@@ -66,7 +66,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:id="@+id/imageView"
+            android:id="@+id/imaView"
             android:src="@mipmap/local_ic"
 
             android:layout_gravity="bottom" />
@@ -93,7 +93,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="歌手"
                 android:textColor="@android:color/white"
-                android:id="@+id/textView2_singer" />
+                android:id="@+id/textVie_singer" />
         </LinearLayout>
 
         <LinearLayout
@@ -113,7 +113,7 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:id="@+id/imageView3_next"
+                android:id="@+id/imageVie_next"
                 android:src="@mipmap/ic_skip_next_white_48dp" />
         </LinearLayout>
     </LinearLayout>

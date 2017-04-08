@@ -128,7 +128,7 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-//        if (mp3Infos == null){
+//        if (mp3Infos != null){
 //            return mp3Infos.size();
 //        }
         return mp3Infos.size();
