@@ -102,7 +102,8 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Vi
 //        if (mp3Infos == null){
 //            return mp3Infos.size();
 //        }
-        return mp3Infos.size();
+//        return mp3Infos.size();
+        return mp3Infos!=null?mp3Infos.size():0;
 
     }
 

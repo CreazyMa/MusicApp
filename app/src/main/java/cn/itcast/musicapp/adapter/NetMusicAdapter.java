@@ -11,9 +11,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import cn.itcast.musicapp.R;
+import cn.itcast.musicapp.bean.BillboardBean;
 import cn.itcast.musicapp.bean.Mp3Info;
 import cn.itcast.musicapp.util.MediaUtils;
 
@@ -23,8 +24,9 @@ import cn.itcast.musicapp.util.MediaUtils;
 
 public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHolder> {
     private LayoutInflater mInflater;
-    private ArrayList<Mp3Info> mp3Infos;
+    private List<Mp3Info> mp3Infos;
     private Context context;
+
 
     private OnItemClickListener onItemClickListener;
 
@@ -36,13 +38,7 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
         this.mInflater = mInflater;
     }
 
-    public ArrayList<Mp3Info> getMp3Infos() {
-        return mp3Infos;
-    }
 
-    public void setMp3Infos(ArrayList<Mp3Info> mp3Infos) {
-        this.mp3Infos = mp3Infos;
-    }
 
     public Context getContext() {
         return context;
@@ -56,11 +52,7 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
         return onItemClickListener;
     }
 
-    public NetMusicAdapter(Context context, ArrayList<Mp3Info> mp3Infos) {
-        this.context = context;
-        this.mp3Infos = mp3Infos;
-        this.mInflater = LayoutInflater.from(context);
-    }
+
 
     //歌曲点击监听接口
     public interface OnItemClickListener {
@@ -69,7 +61,19 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
         void onItemLongClick(int position);
     }
 
+    public List<Mp3Info> getMp3Infos() {
+        return mp3Infos;
+    }
 
+    public void setMp3Infos(List<Mp3Info> mp3Infos) {
+        this.mp3Infos = mp3Infos;
+    }
+
+    public NetMusicAdapter(Context context, List<Mp3Info> mp3Infos) {
+      this.mInflater = LayoutInflater.from(context);
+        this.mp3Infos = mp3Infos;
+        this.context = context;
+    }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -108,6 +112,17 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
 
     }
 
+    @Override
+    public int getItemCount() {
+//        return 0;
+        return mp3Infos!=null?mp3Infos.size():0;
+        //        return mp3Infos.size();//在NetMusicActivity中向这边传值是空值
+        /***
+         * 下边这句话会报错，提示空对象
+         */
+
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView textView1_title;
         public TextView textView2_singer;
@@ -122,20 +137,5 @@ public class NetMusicAdapter extends RecyclerView.Adapter<NetMusicAdapter.ViewHo
             imageView1_icon = (ImageView) view.findViewById(R.id.imageView1_icon);
         }
     }
-
-
-
-
-    @Override
-    public int getItemCount() {
-//        if (mp3Infos != null){
-//            return mp3Infos.size();
-//        }
-        return mp3Infos.size();
-
-    }
-
-
-
 
 }

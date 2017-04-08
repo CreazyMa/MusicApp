@@ -5,6 +5,10 @@ package cn.itcast.musicapp.bean;
  */
 
 public class BillboardBean {
+
+    /****
+     * 存储榜单数据信息
+     */
     private String billboard_type;
     private String billboard_no;
     private String update_date;
@@ -114,5 +118,23 @@ public class BillboardBean {
 
     public void setWeb_url(String web_url) {
         this.web_url = web_url;
+    }
+
+    @Override
+    public String toString() {
+        return "BillboardBean{" +
+                "billboard_type='" + billboard_type + '\'' +
+                ", billboard_no='" + billboard_no + '\'' +
+                ", update_date='" + update_date + '\'' +
+                ", billboard_songnum='" + billboard_songnum + '\'' +
+                ", havemore=" + havemore +
+                ", name='" + name + '\'' +
+                ", comment='" + comment + '\'' +
+                ", pic_s640='" + pic_s640 + '\'' +
+                ", pic_s444='" + pic_s444 + '\'' +
+                ", pic_s260='" + pic_s260 + '\'' +
+                ", pic_s210='" + pic_s210 + '\'' +
+                ", web_url='" + web_url + '\'' +
+                '}';
     }
 }

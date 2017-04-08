@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class NetMusicActivity extends AppCompatActivity {
     private Toolbar toolbar = null;
     private ImageView tbImage = null;//Toolbar显示图片
     private RecyclerView recyclerView = null;
-    private List<Mp3Info> mp3Infos = null;
+    private List<Mp3Info> mp3Infos;
     private BillboardBean billboardBean = null;//存储当前榜单信息
     private NetMusicAdapter adapter = null;
     private String strTitle;//存储Toobar显示文本
@@ -62,7 +63,7 @@ public class NetMusicActivity extends AppCompatActivity {
     private ImageView ivNext;
     private BroadcastReceiver mReceiver;
     private boolean isPlaying;
-    List<Mp3Info> musics = null;
+
     private boolean ifPlaying = false;
 
     @Override
@@ -89,11 +90,13 @@ public class NetMusicActivity extends AppCompatActivity {
         registerReceiver(mReceiver, intentFilter);
 
     }
+
     public class Constant {
         public static final String DEFAULT_MUSIC_TITLE = "MusicApp";
         public static final String DEFAULT_ARTIST = "郑州轻工业学院";
         public static final String RECRIVER_MUSIC_CHANGE = "cn.itcast.musicapp";
     }
+
     private class MusicChangeRecriver extends BroadcastReceiver {
 
         @Override
@@ -107,15 +110,17 @@ public class NetMusicActivity extends AppCompatActivity {
     private void onPlayStateChanged() {
         Mp3Info music = playService.getMusic();
         if (music == null) {
-            tvSongName.setText(MainActivity.Constant.DEFAULT_MUSIC_TITLE);
-            tvSonger.setText(MainActivity.Constant.DEFAULT_ARTIST);
+            tvSongName.setText(Constant.DEFAULT_MUSIC_TITLE);
+            tvSonger.setText(Constant.DEFAULT_ARTIST);
             ivSongPic.setImageResource(R.mipmap.local_ic);
             ivPlay.setImageResource(R.mipmap.uamp_ic_play_arrow_white_48dp);
             return;
         }
         tvSongName.setText(music.getTitle());
         tvSonger.setText(music.getArtist());
-        ivSongPic.setImageBitmap(MediaUtils.getArtWork(getApplicationContext(), music.getId(), music.getAlbumId(), true, true));
+        //ivSongPic.setImageBitmap(MediaUtils.getArtWork(getApplicationContext(), music.getId(), music.getAlbumId(), true, true));
+        Glide.with(this).load(music.getPicUrl()).centerCrop().placeholder(R.mipmap.local_ic).crossFade().into(ivSongPic);
+
         if (playService.isPlaying()) {
             ivPlay.setImageResource(R.mipmap.uamp_ic_pause_white_48dp);
         } else {
@@ -165,39 +170,54 @@ public class NetMusicActivity extends AppCompatActivity {
 
     class LoadNetMusic extends AsyncTask<Integer, Integer, Boolean> {
 
+        List<Mp3Info> musics = null;
 
         @Override
         protected Boolean doInBackground(Integer... params) {
             loading = true;
 
             musics = BaiduMusicUtils.getNetMusic(params[0], params[1], params[2]);
-            System.out.println("++++++++++++++网络音乐获取+++++++++++++++++");
-            System.out.println(musics);
-            System.out.println("++++++++++++++++++++++++++++++++");
+            /**
+             * 已经从网络上获取到音乐
+             */
+//            System.out.println("++++++++++++++网络音乐获取+++++++++++++++++");
+//            System.out.println(musics);
+//            System.out.println("++++++++++++++++++++++++++++++++");
 
             if (params[2] == 0) {
                 mp3Infos = musics;
-
+//                System.out.println("++++++++++++++网络音乐获取+++++++++++++++++");
+//            System.out.println(mp3Infos);
+//            System.out.println("++++++++++++++++++++++++++++++++");
                 billboardBean = BaiduMusicUtils.getBillboardBean();
-
 
             } else {
                 mp3Infos.addAll(musics);
             }
-            if (musics == null) {
+            if (musics == null)
                 return false;
-            }
             return true;
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
             if (aBoolean) {
                 if (offset == 0) {
                     Glide.with(getApplication()).load(billboardBean.getPic_s444()).into(tbImage);
                     billboarMusicCount = Integer.parseInt(billboardBean.getBillboard_songnum());
-                    adapter.setMp3Infos((ArrayList<Mp3Info>) musics);
+
+//                    System.out.println("******billboarMusicCount的值***********");
+//                    System.out.println(billboarMusicCount);
+//                    System.out.println("******billboarMusicCount的值***********");
+//                    System.out.println("******musics的值***********");
+//                    System.out.println(musics);
+//                    System.out.println("******musics的值***********");
+                    adapter.setMp3Infos(musics);//这里没有内容传出去
+
+//                    System.out.println("******musics的值***********");
+//                    System.out.println("从适配器中获取："+adapter.getMp3Infos());
+//                    System.out.println("******musics的值***********");
+
                 }
                 adapter.notifyDataSetChanged();
                 loading = false;
@@ -223,9 +243,16 @@ public class NetMusicActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);//获取到音乐歌曲，显示控件
 
         linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setLayoutManager(linearLayoutManager);//这句话加上以后会报错，提示在适配器中mp3Info中无数据
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.VERTICAL));
-        adapter = new NetMusicAdapter(this, null);
+
+        adapter = new NetMusicAdapter(this, null);//源代码给的没有传值
+//        adapter = new NetMusicAdapter(this, mp3Infos);//传过的值为空
+//
+//        System.out.println("/********适配器中的传值*****************/");
+//        System.out.println(mp3Infos);//这里传入的是空值，所以报错
+//        System.out.println("/*************************/");
+
 
         //添加点击事件处理
         adapter.setOnItemClickListener(new NetMusicAdapter.OnItemClickListener() {
@@ -256,43 +283,12 @@ public class NetMusicActivity extends AppCompatActivity {
                 }
             }
         });
-        tvSongName = (TextView)findViewById(R.id.textView_songName);
-        tvSonger = (TextView)findViewById(R.id.textVie_singer);
-        ivNext = (ImageView)findViewById(R.id.imageVie_next);
-        ivPlay = (ImageView)findViewById(R.id.imageView2_play_pause);
-        ivSongPic = (ImageView)findViewById(R.id.imaView);
-//        ivPlay.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (!isPlaying) {//正在播放则暂停
-//                    isPlaying = true;
-//                    playService.play(getApplicationContext(),0);
-////                    playService.play(first);
-//                    if (playService.isPlaying()) {
-//                        ivPlay.setImageResource(R.mipmap.uamp_ic_play_arrow_white_48dp);
-//                    }
-//                } else if (playService.isPlaying()) {//正在播放，暂停
-//                    playService.pasue();
-//                    ivPlay.setImageResource(R.mipmap.uamp_ic_play_arrow_white_48dp);
-//                } else {  //暂停则播放
-//                    playService.start();
-//                    ivPlay.setImageResource(R.mipmap.uamp_ic_pause_white_48dp);
-//                }
-//            }
-//        });
-//        ivNext.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                if (!ifPlaying){
-//                    playService.play(getApplicationContext(),0);
-//                    ifPlaying = true;
-//                }else {
-//                    playService.next();
-//                }
-//            }
-//        });
-       /* ivPlay.setOnClickListener(new View.OnClickListener() {
+        tvSongName = (TextView) findViewById(R.id.textView_songName);
+        tvSonger = (TextView) findViewById(R.id.textVie_singer);
+        ivNext = (ImageView) findViewById(R.id.imageVie_next);
+        ivPlay = (ImageView) findViewById(R.id.imageView2_play_pause);
+        ivSongPic = (ImageView) findViewById(R.id.imaView);
+       ivPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!isPlaying){
@@ -315,11 +311,12 @@ public class NetMusicActivity extends AppCompatActivity {
             public void onClick(View view) {
                 playService.next();
             }
-        });*/
+        });
     }
-    public boolean play(ArrayList<Mp3Info> mp3Infos,int position) {
+
+    public boolean play(ArrayList<Mp3Info> mp3Infos, int position) {
         playService.setMp3Infos(mp3Infos);
-        playService.play(this,position);
+        playService.play(this, position);
         isPlaying = true;
         return true;
     }

@@ -140,10 +140,20 @@ public class BaiduMusicUtils {
 //请注意：此方法为新增。在本地音乐文件播放时，歌曲的图片是从MediaStore中加载的，
 //而播放网络音乐，无法使用上述方法，因此需要保存pic_small的值。
 //需要在Mp3Info类中添加成员变量：picUri，并添加get和set方法
-//                info.setPicUrl(object.getString("pic_small"));
+                info.setPicUrl(object.getString("pic_small"));
                 info.setUrl(getMusicUrl(info.getId()));
-                System.out.println(info.toString());
+/***
+ * Json数据解析无错误，并已将数据存储到Mp3Info中
+ */
+
+
                 list.add(info);
+/**
+ * 列表已经存入数据
+ */
+//                System.out.println("+++++JSON数据获取，并添加到list中,显示列表数据+++++++++");
+//                System.out.println( list.toString());
+//                System.out.println("+++++JSON数据获取+++++++++");
             }
 
         } catch (JSONException e) {
@@ -207,7 +217,14 @@ public class BaiduMusicUtils {
             bb.setPic_s260(billboard.getString("pic_s260"));
             bb.setPic_s210(billboard.getString("pic_s210"));
             bb.setWeb_url(billboard.getString("web_url"));
-            System.out.println(bb.toString());
+/***
+ * 榜单数据获取无错误
+ */
+//            System.out.println("+++++++++存储在bb内的数据+++++++++++");
+//            System.out.println(bb.toString());
+//            System.out.println("+++++++++存储在bb内的数据+++++++++++");
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
