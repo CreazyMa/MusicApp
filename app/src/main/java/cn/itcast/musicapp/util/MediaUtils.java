@@ -53,7 +53,7 @@ public class MediaUtils {
                 mp3Info.setArtist(artist);
                 mp3Info.setAlbum(album);
                 mp3Info.setAlbumId(albumId);
-                mp3Info.setDuration(duration);
+                mp3Info.setDuration(duration/1000);
                 mp3Info.setSize(size);
                 mp3Info.setUrl(url);
                 mp3Infos.add(mp3Info);

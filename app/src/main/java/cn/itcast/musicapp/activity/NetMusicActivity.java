@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +26,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cn.itcast.musicapp.MainActivity;
 import cn.itcast.musicapp.R;
@@ -64,6 +67,11 @@ public class NetMusicActivity extends AppCompatActivity {
     private BroadcastReceiver mReceiver;
     private boolean isPlaying;
 
+    //新控件，显示进度条
+    private ProgressBar pb_time;
+    private Timer mTimer;
+    private TimerTask mTimerTask;
+
     private boolean ifPlaying = false;
 
     @Override
@@ -75,6 +83,18 @@ public class NetMusicActivity extends AppCompatActivity {
         size = getIntent().getIntExtra("size", 10);
         offset = getIntent().getIntExtra("offset", 0);
         strTitle = getIntent().getStringExtra("name");
+
+
+        //进度条
+        pb_time = (ProgressBar)findViewById(R.id.pb_netTime);
+        mTimer = new Timer();
+        mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                pb_time.setProgress(playService.getPlayPosition());
+            }
+        };
+
         //启动异步任务，加载榜单和音乐数据
         new LoadNetMusic().execute(type, size, offset);
         //ToolBar设置
@@ -120,6 +140,9 @@ public class NetMusicActivity extends AppCompatActivity {
         tvSonger.setText(music.getArtist());
         //ivSongPic.setImageBitmap(MediaUtils.getArtWork(getApplicationContext(), music.getId(), music.getAlbumId(), true, true));
         Glide.with(this).load(music.getPicUrl()).centerCrop().placeholder(R.mipmap.local_ic).crossFade().into(ivSongPic);
+        //进度条
+        pb_time.setMax((int)music.getDuration());
+        pb_time.setProgress(0);
 
         if (playService.isPlaying()) {
             ivPlay.setImageResource(R.mipmap.uamp_ic_pause_white_48dp);
@@ -318,6 +341,8 @@ public class NetMusicActivity extends AppCompatActivity {
         playService.setMp3Infos(mp3Infos);
         playService.play(this, position);
         isPlaying = true;
+        //进度条
+        mTimer.schedule(mTimerTask,0,500);
         return true;
     }
 }

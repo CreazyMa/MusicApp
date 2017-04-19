@@ -36,12 +36,30 @@
         <include layout="@layout/content_main" />
 
     </android.support.design.widget.CoordinatorLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#2b2c2c">
+
+    <ProgressBar
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pb_time"
+        android:minHeight="6dp"
+        android:maxHeight="6dp"
+        android:visibility="visible"
+        />
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#2b2c2c"
         android:orientation="horizontal">
+
+
 
         <ImageView
             android:id="@+id/songImage"
@@ -103,4 +121,5 @@
 
         </LinearLayout>
     </LinearLayout>
+</LinearLayout>
 </LinearLayout>

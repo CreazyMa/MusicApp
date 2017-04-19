@@ -22,10 +22,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 import cn.itcast.musicapp.adapter.MyFragmentAdapter;
@@ -56,6 +59,11 @@ public class MainActivity extends AppCompatActivity
     private boolean isPlaying = false;
     private BroadcastReceiver mReceiver;
     private boolean ifPlaying = false;
+
+    //新控件，显示进度条
+    private ProgressBar pb_time;
+    private Timer mTimer;
+    private TimerTask mTimerTask;
 
     private static final String TAG="mainactivity";
 
@@ -150,12 +158,23 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(mfa);
         tl.setupWithViewPager(viewPager);
 
+        //进度条
+        pb_time = (ProgressBar)findViewById(R.id.pb_time);
+        mTimer = new Timer();
+        mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+          pb_time.setProgress(playService.getPlayPosition());
+            }
+        };
+
 
         tvSongName = (TextView) findViewById(R.id.text_songName);
         tvSinger = (TextView) findViewById(R.id.text_singer);
         ivNext = (ImageView) findViewById(R.id.imageView3_next);
         ivPlay = (ImageView) findViewById(R.id.imageView2_play_pasue);
         ivSongPic = (ImageView) findViewById(R.id.songImage);
+
 
         ivPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,6 +211,14 @@ public class MainActivity extends AppCompatActivity
 
         mReceiver = new MusicChangeRecriver();
         IntentFilter intentFilter = new IntentFilter(Constant.RECRIVER_MUSIC_CHANGE);
+
+         intentFilter.addAction("action.intent.action.PHONE_STATE");
+        intentFilter.addAction("play");
+        intentFilter.addAction("pause");
+        intentFilter.addAction("pre");
+        intentFilter.addAction("next");
+        intentFilter.addAction("close");
+
         registerReceiver(mReceiver, intentFilter);
 
 
@@ -308,6 +335,12 @@ public class MainActivity extends AppCompatActivity
         tvSongName.setText(music.getTitle());
         tvSinger.setText(music.getArtist());
         ivSongPic.setImageBitmap(MediaUtils.getArtWork(getApplicationContext(), music.getId(), music.getAlbumId(), true, true));
+
+        //进度条
+        pb_time.setMax((int)music.getDuration());
+        pb_time.setProgress(0);
+
+
         if (playService.isPlaying()) {
             ivPlay.setImageResource(R.mipmap.uamp_ic_pause_white_48dp);
         } else {
@@ -334,7 +367,11 @@ public class MainActivity extends AppCompatActivity
 //        );
 //        playService.setMp3Infos(mp3Infos);
         playService.play(this,position);
+
         isPlaying = true;
+
+        //进度条
+        mTimer.schedule(mTimerTask,0,500);
         return true;
          }
         //原始播放方法
