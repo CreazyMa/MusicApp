@@ -13,12 +13,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
-import cn.itcast.musicapp.MainActivity;
+import cn.itcast.musicapp.activity.MainActivity;
 import cn.itcast.musicapp.R;
 import cn.itcast.musicapp.activity.NetMusicActivity;
-import cn.itcast.musicapp.util.BaiduMusicUtils;
 
 /**
  * Created by CreazyMa on 2017/3/29.
@@ -59,12 +56,7 @@ public class NetMusicFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-//                new Thread(new Runnable() {//测试使用，将来会删除
-//                    @Override
-//                    public void run() {
-//                        BaiduMusicUtils.getNetMusic(1, 10, 0);
-//                    }
-//                }).start();
+
                 Intent intent = new Intent(mainActivity,NetMusicActivity.class);
                 intent.putExtra("type",typeValue[i]);
                 intent.putExtra("size",10);

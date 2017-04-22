@@ -1,6 +1,7 @@
 package cn.itcast.musicapp.service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -24,10 +25,14 @@ import com.bumptech.glide.Glide;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-import cn.itcast.musicapp.MainActivity;
+import cn.itcast.musicapp.activity.MainActivity;
+import cn.itcast.musicapp.application.MainApplication;
 import cn.itcast.musicapp.R;
+import cn.itcast.musicapp.Constant;
 import cn.itcast.musicapp.bean.Mp3Info;
 import cn.itcast.musicapp.util.MediaUtils;
 
@@ -49,10 +54,25 @@ public class PlayService extends Service {
     public static final int SINGLE_PLAY = 3;//单曲循环
     private int play_mode = ORDER_PLAY;//播放模式，默认为顺序播放
     private Random random = new Random();//创建随机对象
+    private NotificationManager notificationManager;
+    private Notification notification;
+    public static final int TYPE_MEDIA = 7;
+
+    private Timer timer;
+    private TimerTask timerTask;
+    private boolean isTimerStart = false;
 
 
-    public boolean isPlaying() {
-        return mPlayer.isPlaying();
+    public PlayService() {
+
+    }
+
+    public int getPlay_mode() {
+        return play_mode;
+    }
+
+    public void setPlay_mode(int play_mode) {
+        this.play_mode = play_mode;
     }
 
     public class PlayBinder extends Binder {
@@ -68,16 +88,14 @@ public class PlayService extends Service {
         return new PlayBinder();
     }
 
-    public PlayService() {
-
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         mPlayer = new MediaPlayer();
-        mp3Infos = MediaUtils.getMp3Infos(this);
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        mp3Infos = MediaUtils.getMp3Infos(this);
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -101,10 +119,51 @@ public class PlayService extends Service {
         intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
         intentFilter.addAction("android.intent.action.PHONE_STATE");
+        intentFilter.addAction("play");
+        intentFilter.addAction("pause");
+        intentFilter.addAction("next");
+        intentFilter.addAction("pre");
+        intentFilter.addAction("close");
         registerReceiver(systemReceiver, intentFilter);
+
     }
 
-    public Mp3Info play(Context context, int position) {
+    @Override
+    public void onDestroy() {
+        unregisterReceiver(systemReceiver);
+        if (isTimerStart) {
+            timer.cancel();
+            isTimerStart = false;
+        }
+        super.onDestroy();
+    }
+
+    private void startTimer() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(Constant.RECRIVER_PLAY_POSITION);
+                intent.putExtra("position", mPlayer.getCurrentPosition() / 1000);
+                mContext.sendBroadcast(intent);
+            }
+        };
+        timer.schedule(timerTask, 0, 500);
+    }
+
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+        if (timerTask != null) {
+            timerTask.cancel();
+            timerTask = null;
+        }
+    }
+
+    public void play(Context context, int position) {
+        if (mp3Infos == null) return;
         mContext = context;
 
         if (position >= 0 && position < mp3Infos.size()) {
@@ -114,62 +173,58 @@ public class PlayService extends Service {
                 mPlayer.setDataSource(this, Uri.parse(mp3Info.getUrl()));
                 mPlayer.prepare();//准备
                 mPlayer.start();//开始播放
+                setupNotification(mp3Info);
                 currentPosition = position;//保存当前位置到currentPosition
-                mContext.sendBroadcast(new Intent(MainActivity.Constant.RECRIVER_MUSIC_CHANGE));
-//                setupNotification(mp3Infos.set(currentPosition,mp3Info));
-                setupNotification(mp3Infos.get(currentPosition));
+                MainApplication.position = position;
+                MainApplication.isPlaying = mPlayer.isPlaying();
+                Intent intent = new Intent(Constant.RECRIVER_MUSIC_CHANGE);
+                intent.putExtra("position", currentPosition);
+                intent.putExtra("isPlaying", true);
+                mContext.sendBroadcast(intent);
+                if (!isTimerStart) {
+                    startTimer();
+                    isTimerStart = true;
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return mp3Info;
         }
-        return null;
     }
 
     public void setMp3Infos(ArrayList<Mp3Info> mp3Infos) {
         this.mp3Infos = mp3Infos;
     }
 
-//    public void play(Context context, int position) {
-//        mContext = context;
-//        if (position >= 0 && position < mp3Infos.size()) {
-//            Mp3Info mp3Info = mp3Infos.get(position);
-//            try {
-//                mPlayer.reset();//复位
-//                mPlayer.setDataSource(this, Uri.parse(mp3Info.getUrl()));
-//                mPlayer.prepare();//准备
-//                mPlayer.start();//开始播放
-//                currentPosition = position;//保存当前位置到currentPosition
-//                mContext.sendBroadcast(new Intent(MainActivity.Constant.RECRIVER_MUSIC_CHANGE));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 
     //暂停
     public void pasue() {
         if (mPlayer.isPlaying()) {
+
             mPlayer.pause();
+            MainApplication.isPlaying = mPlayer.isPlaying();
             setupNotification(mp3Infos.get(currentPosition));
+            Intent intent = new Intent(Constant.RECRIVER_MUSIC_CHANGE);
+            intent.putExtra("position", currentPosition);
+            intent.putExtra("isPlaying", false);
+            mContext.sendBroadcast(intent);
+            stopTimer();
+            isTimerStart = false;
+
+
         }
     }
 
     //下一首
     public void next() {
-
-//      if (mPlayer != null && !mPlayer.isPlaying()) {//判断是否有没有歌曲播放，如何没有歌曲，点击下一首的时候会从第一首歌开始播放
-//
-//       play(getApplicationContext(),0);//有问题如果点击暂停再点击下一首会报错（重新从第一首开始）
-//      }else
+//        if (mp3Infos == null) return;
         if (currentPosition >= mp3Infos.size() - 1) {//如果当前位置超过总歌数，则返回第一首
             currentPosition = 0;//返回第一首歌
         } else {
             currentPosition++;
         }
         play(mContext, currentPosition);
-        setupNotification(mp3Infos.get(currentPosition));
+//        setupNotification(mp3Infos.get(currentPosition));
     }
 
 
@@ -181,7 +236,7 @@ public class PlayService extends Service {
             currentPosition--;
         }
         play(mContext, currentPosition);
-        setupNotification(mp3Infos.get(currentPosition));
+//        setupNotification(mp3Infos.get(currentPosition));
     }
 
 
@@ -189,41 +244,50 @@ public class PlayService extends Service {
         if (mPlayer != null && !mPlayer.isPlaying()) {//判断当前歌曲不等于空，并且没有在播放
             mPlayer.start();
             setupNotification(mp3Infos.get(currentPosition));
+            Intent intent = new Intent(Constant.RECRIVER_MUSIC_CHANGE);
+            intent.putExtra("position", currentPosition);
+            intent.putExtra("isPlaying", true);
+            mContext.sendBroadcast(intent);
+            if (!isTimerStart) {
+                startTimer();
+                isTimerStart = true;
+            }
         }
     }
 
-    public int getPlay_mode() {
-        return play_mode;
-    }
-
-    public void setPlay_mode(int play_mode) {
-        this.play_mode = play_mode;
-    }
-
-
-    @Override
-    public void onDestroy() {
-        unregisterReceiver(systemReceiver);
-        super.onDestroy();
+    public boolean isPlaying() {
+        return mPlayer.isPlaying();
     }
 
     public Mp3Info getMusic() {
         return mp3Infos.get(currentPosition);
     }
 
+    public int getPlayPosition() {
+        return mPlayer.getCurrentPosition() / 1000;
+    }
+
+
     public class SystemReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("play".equals(intent.getAction())){
-                start();
-            }else if ("pause".equals(intent.getAction())){
+            if ("play".equals(intent.getAction())) {
+                boolean isUpdateList = intent.getBooleanExtra("updateList", false);
+                int position = intent.getIntExtra("position", 0);
+                if (isUpdateList) {//如果是在列表中点击，则更新音乐列表
+                    mp3Infos = (ArrayList<Mp3Info>) MainApplication.mp3List;
+                    play(getApplicationContext(), position);
+                } else {//如果暂停，则播放
+                    start();
+                }
+            } else if ("pause".equals(intent.getAction())) {
                 pasue();
-            }else if ("pre".equals(intent.getAction())){
+            } else if ("pre".equals(intent.getAction())) {
                 prev();
-            }else if ("next".equals(intent.getAction())){
+            } else if ("next".equals(intent.getAction())) {
                 next();
-            }else if ("close".equals(intent.getAction())){
+            } else if ("close".equals(intent.getAction())) {
                 stopForeground(true);
                 pasue();
             }
@@ -253,8 +317,12 @@ public class PlayService extends Service {
 
     //通知栏显示歌曲播放控制栏
     private void setupNotification(final Mp3Info mp3Info) {
+
+//        System.out.println("/************/");
+//        System.out.println("图片地址"+mp3Info.getPicUrl());
+//        System.out.println("/************/");
         if (mp3Info.getPicUrl() == null) {
-            setupNotification(mp3Info, MediaUtils.getArtWork(mContext,mp3Info.getId(),mp3Info.getAlbumId(),true,true));
+            setupNotification(mp3Info, MediaUtils.getArtWork(mContext, mp3Info.getId(), mp3Info.getAlbumId(), true, true));
         } else {
             new AsyncTask<String, Void, Bitmap>() {
 
@@ -262,7 +330,7 @@ public class PlayService extends Service {
                 protected Bitmap doInBackground(String... params) {
                     Bitmap bitmap = null;
                     try {
-                          bitmap =  Glide.with(PlayService.this).load(params[0]).asBitmap().into(100,100).get();
+                        bitmap = Glide.with(PlayService.this).load(params[0]).asBitmap().into(100, 100).get();
 //                        bitmap = Glide.with(PlayService.this).load(strings[0]).asBitmap().into(100, 100).get();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -275,55 +343,55 @@ public class PlayService extends Service {
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
 //                    super.onPostExecute(bitmap);
-                    setupNotification(mp3Info,bitmap);
+                    setupNotification(mp3Info, bitmap);
                 }
             }.execute(mp3Info.getPicUrl());
         }
     }
 
-//两个参数的
-    private void setupNotification(final Mp3Info mp3Info,Bitmap bitmap) {
-         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+    //两个参数的
+    private void setupNotification(final Mp3Info mp3Info, Bitmap bitmap) {
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentTitle(mp3Info.getTitle());
         builder.setContentText(mp3Info.getArtist());
         builder.setSmallIcon(R.mipmap.local_ic);
         builder.setLargeIcon(bitmap);
         builder.setDefaults(NotificationCompat.FLAG_FOREGROUND_SERVICE);
-        Intent intent = new Intent(this,MainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this,1,intent,0);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 1, intent, 0);
         builder.setContentIntent(pIntent);
 
         //新建意图，并设置action标记“play”,用于接收广播时过滤意图信息
 
         Intent intentPlay = new Intent("play");
-        PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(this,0,intentPlay,0);
+        PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(this, 0, intentPlay, 0);
 
         Intent intentPause = new Intent("pause");
-        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(this,0,intentPause,0);
+        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(this, 0, intentPause, 0);
 
         Intent intentNext = new Intent("next");
-        PendingIntent pendingIntentNext = PendingIntent.getBroadcast(this,0,intentNext,0);
+        PendingIntent pendingIntentNext = PendingIntent.getBroadcast(this, 0, intentNext, 0);
 
         Intent intentPre = new Intent("pre");
-        PendingIntent pendingIntentPre = PendingIntent.getBroadcast(this,0,intentPre,0);
+        PendingIntent pendingIntentPre = PendingIntent.getBroadcast(this, 0, intentPre, 0);
 
         Intent intentClose = new Intent("close");
-        PendingIntent pendingIntentClose = PendingIntent.getBroadcast(this,0,intentClose,0);
+        PendingIntent pendingIntentClose = PendingIntent.getBroadcast(this, 0, intentClose, 0);
 
         //第一个参数是图片资源id，第二个是图标显示的名称，第三个点击要启动的PendingIntent
-        builder.addAction(R.mipmap.ic_skip_previous_white_24dp,"",pendingIntentPre);
-        if (isPlaying()){
-            builder.addAction(R.mipmap.uamp_ic_pause_white_24dp,"",pendingIntentPause);
-        }else {
-            builder.addAction(R.mipmap.uamp_ic_play_arrow_white_24dp,"",pendingIntentPlay);
+        builder.addAction(R.mipmap.ic_skip_previous_white_24dp, "", pendingIntentPre);
+        if (isPlaying()) {
+            builder.addAction(R.mipmap.uamp_ic_pause_white_24dp, "", pendingIntentPause);
+        } else {
+            builder.addAction(R.mipmap.uamp_ic_play_arrow_white_24dp, "", pendingIntentPlay);
         }
-        builder.addAction(R.mipmap.ic_skip_next_white_24dp,"",pendingIntentNext);
-        builder.addAction(R.mipmap.ic_close_black_24dp,"",pendingIntentClose);
+        builder.addAction(R.mipmap.ic_skip_next_white_24dp, "", pendingIntentNext);
+        builder.addAction(R.mipmap.ic_close_black_24dp, "", pendingIntentClose);
         NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
 
 
-        style.setMediaSession(new MediaSessionCompat(this,"MediaSession",
-                new ComponentName(this,Intent.ACTION_MEDIA_BUTTON),null).getSessionToken());
+        style.setMediaSession(new MediaSessionCompat(this, "MediaSession",
+                new ComponentName(this, Intent.ACTION_MEDIA_BUTTON), null).getSessionToken());
 
 
         //CancelButton在5.0以下的机器有效
@@ -332,17 +400,13 @@ public class PlayService extends Service {
 
         //设置要实现在通知栏有房的图标，最多三个
 
-        style.setShowActionsInCompactView(2,3);
+        style.setShowActionsInCompactView(2, 3);
         builder.setStyle(style);
         builder.setShowWhen(false);
 //        mNotification = builder.build();
         Notification mNotification = builder.build();
 
-        startForeground(1,mNotification);
+        startForeground(1, mNotification);
     }
 
-
-    public int getPlayPosition(){
-        return mPlayer.getCurrentPosition()/1000;
-    }
 }

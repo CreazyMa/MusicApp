@@ -52,88 +52,10 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             />
     </android.support.design.widget.CoordinatorLayout>
-
-
-    <LinearLayout
+    <fragment
+        android:id="@+id/fragement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#2b2c2c">
-
-        <ProgressBar
-            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/pb_netTime"
-            android:minHeight="6dp"
-            android:maxHeight="6dp"
-            android:visibility="visible"
-            />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout2"
-        android:background="#2d2c2c"
-        >
-
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:id="@+id/imaView"
-            android:src="@mipmap/local_ic"
-
-            android:layout_gravity="bottom" />
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_margin="10dp"
-            android:layout_weight="1">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="歌名"
-                android:textColor="@android:color/white"
-                android:id="@+id/textView_songName" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="歌手"
-                android:textColor="@android:color/white"
-                android:id="@+id/textVie_singer" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:id="@+id/imageView2_play_pause"
-                android:layout_marginRight="10dp"
-                android:src="@mipmap/uamp_ic_play_arrow_white_48dp" />
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:id="@+id/imageVie_next"
-                android:src="@mipmap/ic_skip_next_white_48dp" />
-        </LinearLayout>
-    </LinearLayout>
-    </LinearLayout>
+        android:name="cn.itcast.musicapp.fragment.MusicPlayerFragment"
+        />
 </LinearLayout>

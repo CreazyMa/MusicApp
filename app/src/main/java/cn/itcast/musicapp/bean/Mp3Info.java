@@ -19,6 +19,24 @@ public class Mp3Info {
     private String lrcSize; // 歌词大小
     private String picUrl;//网络歌曲图片
     private int isMusic;
+    private boolean loveMusic;
+    private String lrcLink;
+
+    public boolean isLoveMusic() {
+        return loveMusic;
+    }
+
+    public void setLoveMusic(boolean loveMusic) {
+        this.loveMusic = loveMusic;
+    }
+
+    public String getLrcLink() {
+        return lrcLink;
+    }
+
+    public void setLrcLink(String lrcLink) {
+        this.lrcLink = lrcLink;
+    }
 
     public int getIsMusic() {
         return isMusic;
@@ -157,5 +175,9 @@ public class Mp3Info {
                 ", lrcTitle='" + lrcTitle + '\'' +
                 ", lrcSize='" + lrcSize + '\'' +
                 '}';
+    }
+
+    public Runnable getBigPicUri() {
+        return null;
     }
 }

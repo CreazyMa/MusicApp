@@ -239,4 +239,9 @@ public class BaiduMusicUtils {
     public static void setBillboardBean(BillboardBean billboardBean) {
         BaiduMusicUtils.billboardBean = billboardBean;
     }
+
+
+
+    public static void downloadLrc(String param, String param1) {//下载歌词
+    }
 }

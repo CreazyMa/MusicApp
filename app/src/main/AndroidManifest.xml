@@ -14,11 +14,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/local_ic"
         android:label="@string/app_name"
+        android:name=".application.MainApplication"
         android:roundIcon="@mipmap/local_ic"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
 
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -28,8 +29,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.NetMusicActivity"  android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
+        <activity android:name=".activity.NetMusicActivity" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".activity.MusicPlayActivity" android:theme="@style/AppTheme.NoActionBar"/>
         <service
             android:name=".service.PlayService"
             android:exported="true" />
